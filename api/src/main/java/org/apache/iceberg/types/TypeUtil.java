@@ -127,6 +127,20 @@ public class TypeUtil {
     return ImmutableSet.copyOf(getIdsInternal(type, true));
   }
 
+  /**
+   * Returns the set of field IDs from the projected schema, excluding struct/container field IDs.
+   *
+   * <p>This is useful for column pruning scenarios where only leaf field IDs should be considered.
+   * When a struct is projected (e.g., SELECT struct.field), including the struct's ID would cause
+   * the entire struct to be selected instead of just the projected field.
+   *
+   * @param schema the projected schema
+   * @return set of field IDs excluding struct/container IDs
+   */
+  public static Set<Integer> getProjectedIdsExcludingStructs(Schema schema) {
+    return ImmutableSet.copyOf(getIdsInternal(schema.asStruct(), false));
+  }
+
   private static Set<Integer> getIdsInternal(Type type, boolean includeStructIds) {
     return visit(type, new GetProjectedIds(includeStructIds));
   }
